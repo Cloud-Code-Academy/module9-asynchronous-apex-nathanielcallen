@@ -28,7 +28,7 @@ public with sharing class NextStepFuture {
      * Update the corresponding test class AsynchronousTest and test method nextStepFuture_testUpdateAllNextStep to cover test this method
      */
     @future
-     public static void nextStepFuture_UpdateAllNextStep () {
+     public static void updateAllNextStep () {
     //  The body of the method
         List<Account> accountWithOpportunities = [SELECT Id, Name, Next_Step__c, 
             (SELECT Id, Name, NextStep FROM Opportunities) FROM Account];
