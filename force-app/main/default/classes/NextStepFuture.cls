@@ -27,9 +27,22 @@ public with sharing class NextStepFuture {
      * Opportunity Next Step field is a standard field
      * Update the corresponding test class AsynchronousTest and test method nextStepFuture_testUpdateAllNextStep to cover test this method
      */
-    //[public | private ] [static] data_type method_name (input parameters) {
+    @future
+     public static void nextStepFuture_UpdateAllNextStep () {
     //  The body of the method
-    //}
+        List<Account> accountWithOpportunities = [SELECT Id, Name, Next_Step__c, 
+            (SELECT Id, Name, NextStep FROM Opportunities) FROM Account];
+        List<Opportunity> oppsToUpdate = new List<Opportunity>();
+        for (Account acc : accountWithOpportunities) {
+            acc.Next_Step__c = 'Meeting in the future';
+            for (Opportunity opp : acc.Opportunities) {
+                opp.NextStep = 'Meeting in the future';
+                oppsToUpdate.add(opp);
+            }             
+        }
+        update accountWithOpportunities;
+        update oppsToUpdate;
+    }
 
     /*
     * Question 2
@@ -38,13 +51,12 @@ public with sharing class NextStepFuture {
     * Update the corresponding test class AsynchronousTest and test method nextStepFuture_testCreateDealAndUpdateRole to cover test this method
     */
     //Mix DML Error happens when you try to perform DML operations on setup and non-setup objects in a single transaction.
-    public static void createDealAndUpdateRole() {
-        Opportunity bigDeal = new Opportunity();
-        insertBigDeal(bigDeal);
-
-        UserRole[] roles = [SELECT Id, Name FROM UserRole WHERE Id = :UserInfo.getUserRoleId() OR Name = 'CRO' LIMIT 1];
-        updateUserRoleName(roles);
-    }
+    
+        public static void createDealAndUpdateRole() {
+            Opportunity bigDeal = new Opportunity();
+            insertBigDeal(bigDeal);
+            updateUserRoleName();
+        }
 
     // Helper method to insert big deal
     private static void insertBigDeal(Opportunity opp) {
@@ -58,7 +70,9 @@ public with sharing class NextStepFuture {
 
 
     // Helper method to update role name
-    private static void updateUserRoleName(UserRole[] roles){
+    @future
+    private static void updateUserRoleName(){
+        UserRole[] roles = [SELECT Id, Name FROM UserRole WHERE Id = :UserInfo.getUserRoleId() OR Name = 'CRO' LIMIT 1];
         UserRole role;
         if (roles.isEmpty()) {
             role = new UserRole();
