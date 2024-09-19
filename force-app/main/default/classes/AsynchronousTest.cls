@@ -43,7 +43,7 @@ public with sharing class AsynchronousTest {
 
         // Call the method to test between the startTest and stopTest methods
         Test.startTest();
-        NextStepFuture.nextStepFuture_UpdateAllNextStep();
+        NextStepFuture.updateAllNextStep();
         Test.stopTest();
 
         // Query the updated accounts and opportunities
