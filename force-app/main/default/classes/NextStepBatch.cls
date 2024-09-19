@@ -22,27 +22,30 @@ public with sharing class NextStepBatch implements Database.Batchable<sObject>{
 
     public Database.QueryLocator start(Database.BatchableContext bc){
         // Query for all accounts and return the query locator.
-        return null; // Update null with the query locator
+        return Database.getQueryLocator([SELECT Id, Next_Step__c FROM Account]); // Update null with the query locator
     }
     
     public void execute(Database.BatchableContext bc, List<Account> scope){
         final String BATCH_NEXT_STEP = 'Batching the next meetings together.';
 
         // Update the Next Step field on each record in the batch scope.
-
         // Loop through the scope account records
-
-            // Set the Next Step field to 'Batching the next meetings together.'
-
+        // Set the Next Step field to 'Batching the next meetings together.'
+        for (Account acc: scope) {
+            acc.Next_Step__c = BATCH_NEXT_STEP;
+        }
         // Update the account records in this batch scope
-        
+        update scope;
         // Query for all opportunities related to the accounts in this batch scope
+        List<Opportunity> relatedOpps = [SELECT Id, NextStep FROM Opportunity WHERE AccountId IN :scope];
 
         // Loop through the opportunity records
-
-            // Set the Next Step field to 'Batching the next meetings together.'
-
+        // Set the Next Step field to 'Batching the next meetings together.'
+        for(Opportunity opp: relatedOpps) {
+            opp.NextStep = BATCH_NEXT_STEP;
+        }
         // Update the opportunity records
+        update relatedOpps;        
 
     }
     
@@ -50,6 +53,16 @@ public with sharing class NextStepBatch implements Database.Batchable<sObject>{
         final List<User> USERS = [SELECT Id, Name, Email FROM User WHERE IsActive = true AND (NOT Email LIKE 'autoproc%')]; // DO NOT CHANGE
 
         // Get the email addresses of all active users
+        // Create an email list
+        Set<String> userEmails = new Set<String>();
+        for (User u : USERS) {
+            userEmails.add(u.Email);
+        }
+
+        
+        if(userEmails.size() > 0) {
+            sendEmailToActiveUsers(userEmails);
+        }
 
             // Pass the set of active user emails to the sendEmailToActiveUsers method
     }
